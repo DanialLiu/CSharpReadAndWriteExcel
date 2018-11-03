@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Threading;
-using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 using Microsoft.Win32;
 using System.Reflection;
@@ -28,16 +27,10 @@ namespace ExcelSplit
     public partial class MainWindow : System.Windows.Window
     {
         private static Random random = new Random();
-        public delegate void onProcessEvent(string item);
-        public delegate void onFinishEvent();
-        public event onProcessEvent onProcess;
-        public event onFinishEvent onFinish;
         public Thread thread;
         public MainWindow()
         {
             InitializeComponent();
-            //onProcess += updateListItem;
-            //onFinish += onSplitFinish;
         }        
         private string genPassword(int pass_len)
         {
@@ -46,14 +39,14 @@ namespace ExcelSplit
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
         private void button_Click(object sender, RoutedEventArgs e)
-        {
-            buttonSplit.IsEnabled = false;
+        {            
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Excel文件|*.xls*|所有文件|*.*";
             openFileDialog.RestoreDirectory = true;
             openFileDialog.FilterIndex = 1;
             if (openFileDialog.ShowDialog() == true)
             {
+                buttonSplit.IsEnabled = false;
                 labelStatus.Content = "loading...";
                 int pass_len = int.Parse(textBoxPassLen.Text);
                 if (pass_len <= 0 || pass_len > 100)
@@ -62,33 +55,7 @@ namespace ExcelSplit
                 thread.Start();
             }
 
-        }
-        //private void onProcessItem(string item)
-        //{
-        //    //if (this.textBox1.InvokeRequired)
-        //    //{
-        //    //    StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(SetText);
-        //    //    this.Invoke(d, new object[] { text });
-        //    //}
-        //    //else
-        //    //{
-        //    //    this.textBox1.Text = text;
-        //    //}
-        //    private delegate void SetTextCallback(System.Windows.Controls.TextBox control, string text);
-        //labelStatus.Dispatcher.Invoke(d, new object[] { control, text });
-        //    //this.Invoke(new Action(() => updateListItem(item)));
-        //    //listBoxEmployee.Items.Insert(0, item);
-        //}
-        //private void updateListItem(string item)
-        //{
-        //    listBoxEmployee.Items.Insert(0, item);
-        //}
-
-        //private void onSplitFinish()
-        //{
-        //    labelStatus.Content = "done!";
-        //    buttonSplit.IsEnabled = true;
-        //}
+        }       
         private void run(string excel_path, int pass_len)
         {
             string work_path = Path.GetDirectoryName(excel_path);
